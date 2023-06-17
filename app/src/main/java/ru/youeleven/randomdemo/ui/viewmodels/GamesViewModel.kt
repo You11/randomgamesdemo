@@ -2,6 +2,7 @@ package ru.youeleven.randomdemo.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,21 +17,6 @@ class GamesViewModel : ViewModel() {
 
     private val repository: Repository = Repository()
 
-    private val _games = MutableStateFlow<List<Game>>(emptyList())
-    val games: StateFlow<List<Game>> = _games.asStateFlow()
 
-
-    init {
-        viewModelScope.launch {
-            repository.getGames().flowOn(Dispatchers.IO).collect { games ->
-                _games.update { games  }
-            }
-        }
-    }
-
-    fun getGames() {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.updateGames()
-        }
-    }
+    fun getGames() = repository.getGamesPaginated().flow.cachedIn(viewModelScope)
 }
