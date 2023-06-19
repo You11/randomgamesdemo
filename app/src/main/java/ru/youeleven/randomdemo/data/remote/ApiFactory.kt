@@ -27,18 +27,16 @@ object ApiFactory {
 
     fun createClient(): OkHttpClient {
         val builder = OkHttpClient.Builder()
-            .addInterceptor(object: Interceptor {
-                override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
-                    val request = chain.request()
+            .addInterceptor(Interceptor { chain ->
+                val request = chain.request()
 
-                    val url = request.url.newBuilder()
-                        .addQueryParameter("key", "1aa659e6599b44fbb71580b26bf7fa88")
-                        .build()
+                val url = request.url.newBuilder()
+                    .addQueryParameter("key", "1aa659e6599b44fbb71580b26bf7fa88")
+                    .build()
 
-                    val requestBuilder = request.newBuilder().url(url)
+                val requestBuilder = request.newBuilder().url(url)
 
-                    return chain.proceed(requestBuilder.build())
-                }
+                chain.proceed(requestBuilder.build())
             })
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)

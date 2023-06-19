@@ -1,5 +1,6 @@
 package ru.youeleven.randomdemo.data.remote.models
 
+import com.squareup.moshi.Json
 import ru.youeleven.randomdemo.data.models.Game
 
 class GameResponse {
@@ -13,6 +14,13 @@ class GameResponse {
 
         val name: String? = null
 
+        val rating: Double? = null
+
+        @field:Json(name = "ratings_count")
+        val ratingsCount: Int? = null
+
+        @field:Json(name = "background_image")
+        val backgroundImage: String? = null
     }
 
 
@@ -21,7 +29,7 @@ class GameResponse {
             if (it.id == null || it.name == null)
                 return null
             else
-                Game(it.id, it.name)
+                Game(it.id, it.name, it.rating, it.ratingsCount, it.backgroundImage)
         }
     }
 }
