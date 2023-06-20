@@ -5,18 +5,20 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import ru.youeleven.randomdemo.App
+import ru.youeleven.randomdemo.data.local.Dao
 import ru.youeleven.randomdemo.data.local.models.GameLocalWithRemoteKeys
 import ru.youeleven.randomdemo.data.models.Game
 import ru.youeleven.randomdemo.data.remote.Api
 import ru.youeleven.randomdemo.ui.GamesMediator
 import ru.youeleven.randomdemo.utils.CallResult
 import java.io.IOException
+import javax.inject.Inject
 
-class Repository {
 
-    private val api = Api.create()
-    private val dao = App.mainDb.dao()
-
+class Repository @Inject constructor(
+    private val api: Api,
+    private val dao: Dao
+) {
 
     suspend fun getGames(page: Int): CallResult<List<Game>> {
         return try {
@@ -48,7 +50,7 @@ class Repository {
 
         return Pager(
             config = PagingConfig(pageSize = 20, initialLoadSize = 20),
-            remoteMediator = GamesMediator(1, this, App.mainDb),
+            remoteMediator = GamesMediator(this),
             pagingSourceFactory = pagingSourceFactory
         )
     }

@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
@@ -23,7 +22,7 @@ import coil.compose.AsyncImage
 import ru.youeleven.randomdemo.ui.viewmodels.GamesViewModel
 
 @Composable
-fun GamesScreen(gameViewModel: GamesViewModel = viewModel()) {
+fun GamesScreen(gameViewModel: GamesViewModel) {
 
     val games = gameViewModel.getGames().collectAsLazyPagingItems()
 

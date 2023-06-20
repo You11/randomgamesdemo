@@ -1,11 +1,17 @@
 package ru.youeleven.randomdemo.ui
 
+import android.content.Context
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 import retrofit2.HttpException
+import ru.youeleven.randomdemo.App
 import ru.youeleven.randomdemo.data.local.AppDatabase
 import ru.youeleven.randomdemo.data.local.models.GameLocalWithRemoteKeys
 import ru.youeleven.randomdemo.data.local.models.GameRemoteKeysLocal
@@ -13,11 +19,27 @@ import ru.youeleven.randomdemo.data.models.GameRemoteKeys
 import ru.youeleven.randomdemo.data.repository.Repository
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 @ExperimentalPagingApi
-class GamesMediator(private val initialPage: Int = 1,
-                    val repository: Repository,
-                    val db: AppDatabase): RemoteMediator<Int, GameLocalWithRemoteKeys>() {
+class GamesMediator(val repository: Repository): RemoteMediator<Int, GameLocalWithRemoteKeys>() {
+
+    private val initialPage = 1
+    var db: AppDatabase = getLogDao(App.instance)
+
+    @InstallIn(SingletonComponent::class)
+    @EntryPoint
+    interface LogsContentProviderEntryPoint {
+        fun logDao(): AppDatabase
+    }
+
+    private fun getLogDao(appContext: Context): AppDatabase {
+        val hiltEntryPoint = EntryPointAccessors.fromApplication(
+            appContext,
+            LogsContentProviderEntryPoint::class.java
+        )
+        return hiltEntryPoint.logDao()
+    }
 
 
     override suspend fun load(
