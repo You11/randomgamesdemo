@@ -14,6 +14,7 @@ object ApiFactory {
 
     inline fun <reified T: Any> create(baseUrl: String): T {
         val moshi = Moshi.Builder()
+            .add(DateAdapter())
             .build()
 
         val retrofit = Retrofit.Builder()

@@ -66,18 +66,16 @@ fun NavHost(navController: NavHostController) {
             }
             val viewModel = hiltViewModel<GamesViewModel>(parentEntry)
             GamesScreen(viewModel) { id ->
-                navController.navigate(BottomNavItem.GameInfo.getScreenRouteNameWithArgs(BottomNavItem.GameInfo.argName)) {
+                navController.navigate(BottomNavItem.GameInfo.getScreenRouteNameWithArgs(id.toString())) {
                     restoreState = true
                 }
             }
         }
-        composable(BottomNavItem.GameInfo.getScreenRouteNameWithArgsGeneric(BottomNavItem.GameInfo.argName),
+        composable(
+            route = "game_info/{gameId}",
             arguments = listOf(navArgument(BottomNavItem.GameInfo.argName) { type = NavType.StringType })
         ) {
-            val parentEntry = remember(it) {
-                navController.getBackStackEntry("games")
-            }
-            val viewModel = hiltViewModel<GameInfoViewModel>(parentEntry)
+            val viewModel = hiltViewModel<GameInfoViewModel>()
             GameInfoScreen(it.arguments?.getString(BottomNavItem.GameInfo.argName), viewModel)
         }
         composable(BottomNavItem.Favorites.screenRoute) {
