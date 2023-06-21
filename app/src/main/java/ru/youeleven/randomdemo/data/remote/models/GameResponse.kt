@@ -29,7 +29,7 @@ class GameResponse {
             if (it.id == null || it.name == null)
                 return null
             else
-                Game(it.id, it.name, it.rating, it.ratingsCount, it.backgroundImage)
+                Game(it.id, it.name, it.rating, it.ratingsCount, it.backgroundImage, null, null)
         }
     }
 }

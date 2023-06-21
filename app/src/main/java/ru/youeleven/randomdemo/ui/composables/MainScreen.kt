@@ -2,7 +2,6 @@ package ru.youeleven.randomdemo.ui.composables
 
 import android.annotation.SuppressLint
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -11,19 +10,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import ru.youeleven.randomdemo.ui.BottomNavItem
-import ru.youeleven.randomdemo.ui.theme.RandomdemoTheme
+import ru.youeleven.randomdemo.ui.viewmodels.GameInfoViewModel
 import ru.youeleven.randomdemo.ui.viewmodels.GamesViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -32,27 +31,59 @@ fun MainScreen() {
     val controller = rememberNavController()
 
     Scaffold(
-        bottomBar = { BottomAppBar() { BottomNavigationBar(navController = controller) }}
+        bottomBar = {
+            if (isCurrentRouteWithBottomBar(controller.currentBackStackEntryAsState().value?.destination?.route))
+                BottomAppBar() { BottomNavigationBar(navController = controller) }
+        }
     ) {
-        NavigationGraph(navController = controller)
+        NavHost(navController = controller)
     }
 }
 
-@Composable
-fun NavigationGraph(navController: NavHostController) {
+fun isCurrentRouteWithBottomBar(route: String?): Boolean {
+    if (route == null) return false
 
-    NavHost(navController, startDestination = BottomNavItem.Games.screen_route) {
-        composable(BottomNavItem.Games.screen_route) {
+    val routesWithBottomBar = listOf(
+        BottomNavItem.Games,
+        BottomNavItem.Favorites,
+        BottomNavItem.Settings
+    )
+
+    routesWithBottomBar.forEach {
+        if (route.startsWith(it.screenRoute)) return true
+    }
+
+    return false
+}
+
+@Composable
+fun NavHost(navController: NavHostController) {
+
+    NavHost(navController, startDestination = BottomNavItem.Games.screenRoute) {
+        composable(BottomNavItem.Games.screenRoute) {
             val parentEntry = remember(it) {
                 navController.getBackStackEntry("games")
             }
             val viewModel = hiltViewModel<GamesViewModel>(parentEntry)
-            GamesScreen(viewModel)
+            GamesScreen(viewModel) { id ->
+                navController.navigate(BottomNavItem.GameInfo.getScreenRouteNameWithArgs(BottomNavItem.GameInfo.argName)) {
+                    restoreState = true
+                }
+            }
         }
-        composable(BottomNavItem.Favorites.screen_route) {
+        composable(BottomNavItem.GameInfo.getScreenRouteNameWithArgsGeneric(BottomNavItem.GameInfo.argName),
+            arguments = listOf(navArgument(BottomNavItem.GameInfo.argName) { type = NavType.StringType })
+        ) {
+            val parentEntry = remember(it) {
+                navController.getBackStackEntry("games")
+            }
+            val viewModel = hiltViewModel<GameInfoViewModel>(parentEntry)
+            GameInfoScreen(it.arguments?.getString(BottomNavItem.GameInfo.argName), viewModel)
+        }
+        composable(BottomNavItem.Favorites.screenRoute) {
             NetworkScreen()
         }
-        composable(BottomNavItem.Settings.screen_route) {
+        composable(BottomNavItem.Settings.screenRoute) {
             SettingsScreen()
         }
     }
@@ -71,12 +102,12 @@ fun BottomNavigationBar(navController: NavController) {
         val currentRoute = navBackStackEntry?.destination?.route
         items.forEach { item ->
             NavigationBarItem(
-                icon = { Icon(painterResource(id = item.icon), contentDescription = item.title) },
+                icon = { if (item.icon != null) Icon(painterResource(id = item.icon), contentDescription = item.title) },
                 label = { Text(text = item.title, fontSize = 9.sp) },
                 alwaysShowLabel = true,
-                selected = currentRoute == item.screen_route,
+                selected = currentRoute == item.screenRoute,
                 onClick = {
-                    navController.navigate(item.screen_route) {
+                    navController.navigate(item.screenRoute) {
 
                         navController.graph.startDestinationRoute?.let { screenRoute ->
                             popUpTo(screenRoute) {

@@ -1,10 +1,8 @@
 package ru.youeleven.randomdemo.data.repository
 
-import android.graphics.pdf.PdfDocument.Page
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import ru.youeleven.randomdemo.App
 import ru.youeleven.randomdemo.data.local.Dao
 import ru.youeleven.randomdemo.data.local.models.GameLocalWithRemoteKeys
 import ru.youeleven.randomdemo.data.models.Game
@@ -30,6 +28,30 @@ class Repository @Inject constructor(
                     val games = data.toGames()
                     if (games != null) {
                         CallResult(games)
+                    } else {
+                        CallResult(IOException(""))
+                    }
+                } else {
+                    CallResult(IOException("Wrong data"))
+                }
+            } else {
+                CallResult(IOException("Empty body"))
+            }
+        } catch (e: Exception) {
+            CallResult(e)
+        }
+    }
+
+    suspend fun getGameInfo(id: Int): CallResult<Game> {
+        return try {
+            val response = api.getGameInfo(id)
+            if (response.isSuccessful) {
+                val data = response.body()
+
+                if (data != null) {
+                    val game = data.toGame()
+                    if (game != null) {
+                        CallResult(game)
                     } else {
                         CallResult(IOException(""))
                     }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,8 +22,9 @@ import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import ru.youeleven.randomdemo.ui.viewmodels.GamesViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GamesScreen(gameViewModel: GamesViewModel) {
+fun GamesScreen(gameViewModel: GamesViewModel, onGameInfoClick: (Int) -> Unit) {
 
     val games = gameViewModel.getGames().collectAsLazyPagingItems()
 
@@ -39,7 +41,13 @@ fun GamesScreen(gameViewModel: GamesViewModel) {
         ) { index ->
             val game = games[index]?.game
 
-            Card(shape = RoundedCornerShape(8.dp), elevation = CardDefaults.cardElevation()) {
+            Card(
+                shape = RoundedCornerShape(8.dp),
+                elevation = CardDefaults.cardElevation(),
+                onClick = {
+                    if (game?.id != null) onGameInfoClick.invoke(game.id)
+                }
+            ) {
                 Column {
                     AsyncImage(
                         model = game?.backgroundImage,
