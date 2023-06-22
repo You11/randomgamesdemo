@@ -22,6 +22,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import ru.youeleven.randomdemo.ui.BottomNavItem
+import ru.youeleven.randomdemo.ui.viewmodels.FavoriteGamesViewModel
 import ru.youeleven.randomdemo.ui.viewmodels.GameInfoViewModel
 import ru.youeleven.randomdemo.ui.viewmodels.GamesViewModel
 
@@ -62,7 +63,7 @@ fun NavHost(navController: NavHostController) {
     NavHost(navController, startDestination = BottomNavItem.Games.screenRoute) {
         composable(BottomNavItem.Games.screenRoute) {
             val parentEntry = remember(it) {
-                navController.getBackStackEntry("games")
+                navController.getBackStackEntry(BottomNavItem.Games.screenRoute)
             }
             val viewModel = hiltViewModel<GamesViewModel>(parentEntry)
             GamesScreen(viewModel) { id ->
@@ -79,7 +80,15 @@ fun NavHost(navController: NavHostController) {
             GameInfoScreen(it.arguments?.getString(BottomNavItem.GameInfo.argName), viewModel)
         }
         composable(BottomNavItem.Favorites.screenRoute) {
-            NetworkScreen()
+            val parentEntry = remember(it) {
+                navController.getBackStackEntry(BottomNavItem.Favorites.screenRoute)
+            }
+            val viewModel = hiltViewModel<FavoriteGamesViewModel>(parentEntry)
+            FavoriteGamesScreen(viewModel) { id ->
+                navController.navigate(BottomNavItem.GameInfo.getScreenRouteNameWithArgs(id.toString())) {
+                    restoreState = true
+                }
+            }
         }
         composable(BottomNavItem.Settings.screenRoute) {
             SettingsScreen()

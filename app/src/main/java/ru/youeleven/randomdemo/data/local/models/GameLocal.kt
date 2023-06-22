@@ -12,9 +12,8 @@ class GameLocal(@PrimaryKey val id: Int,
                 val rating: Double?,
                 @ColumnInfo(name = "rating_count") val ratingCount: Int?,
                 val backgroundImage: String?,
-                val description: String?,
                 val released: Date?) {
 
 
-    fun asGame() = Game(id, name, rating, ratingCount, backgroundImage, description, released)
+    fun asGame() = Game(id, name, rating, ratingCount, backgroundImage, released, null)
 }

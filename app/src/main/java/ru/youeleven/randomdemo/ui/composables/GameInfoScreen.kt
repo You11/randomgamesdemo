@@ -8,11 +8,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
@@ -25,12 +28,19 @@ fun GameInfoScreen(id: String?, viewModel: GameInfoViewModel) {
 
     viewModel.getGame(id)
     val game: Game? by viewModel.game.collectAsStateWithLifecycle()
-    game?.let { Layout(it) }
+    game?.let {
+        Layout(it,
+            { viewModel.changeFavoriteGameStatus(true) },
+            { viewModel.changeFavoriteGameStatus(false) }
+        )
+    }
 }
 
 @Composable
-fun Layout(game: Game) {
-    Column(modifier = Modifier.fillMaxWidth().verticalScroll(enabled = true, state = ScrollState(0))) {
+fun Layout(game: Game, onAddClick: () -> Unit, onRemoveClick: () -> Unit) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .verticalScroll(enabled = true, state = ScrollState(0))) {
         AsyncImage(
             model = game.backgroundImage,
             contentDescription = null,
@@ -54,5 +64,23 @@ fun Layout(game: Game) {
         if (date != null) Text(text = "Release date: $date", modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp))
+        if (!game.isFavoriteGame) {
+            Button(
+                onClick = { onAddClick.invoke() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)) {
+                Text(text = "Добавить", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+            }
+        } else {
+            Button(
+                onClick = { onRemoveClick.invoke() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)) {
+                Text(text = "Удалить", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+            }
+        }
+
     }
 }

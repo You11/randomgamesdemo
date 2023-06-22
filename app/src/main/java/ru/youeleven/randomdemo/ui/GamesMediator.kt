@@ -15,31 +15,14 @@ import ru.youeleven.randomdemo.App
 import ru.youeleven.randomdemo.data.local.AppDatabase
 import ru.youeleven.randomdemo.data.local.models.GameLocalWithRemoteKeys
 import ru.youeleven.randomdemo.data.local.models.GameRemoteKeysLocal
-import ru.youeleven.randomdemo.data.models.GameRemoteKeys
 import ru.youeleven.randomdemo.data.repository.Repository
 import java.io.IOException
-import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
 @ExperimentalPagingApi
 class GamesMediator(val repository: Repository): RemoteMediator<Int, GameLocalWithRemoteKeys>() {
 
     private val initialPage = 1
     var db: AppDatabase = getLogDao(App.instance)
-
-    @InstallIn(SingletonComponent::class)
-    @EntryPoint
-    interface LogsContentProviderEntryPoint {
-        fun logDao(): AppDatabase
-    }
-
-    private fun getLogDao(appContext: Context): AppDatabase {
-        val hiltEntryPoint = EntryPointAccessors.fromApplication(
-            appContext,
-            LogsContentProviderEntryPoint::class.java
-        )
-        return hiltEntryPoint.logDao()
-    }
 
 
     override suspend fun load(
@@ -103,5 +86,19 @@ class GamesMediator(val repository: Repository): RemoteMediator<Int, GameLocalWi
 
     override suspend fun initialize(): InitializeAction {
         return InitializeAction.LAUNCH_INITIAL_REFRESH
+    }
+
+    @InstallIn(SingletonComponent::class)
+    @EntryPoint
+    interface DbProviderEntryPoint {
+        fun db(): AppDatabase
+    }
+
+    private fun getLogDao(appContext: Context): AppDatabase {
+        val hiltEntryPoint = EntryPointAccessors.fromApplication(
+            appContext,
+            DbProviderEntryPoint::class.java
+        )
+        return hiltEntryPoint.db()
     }
 }

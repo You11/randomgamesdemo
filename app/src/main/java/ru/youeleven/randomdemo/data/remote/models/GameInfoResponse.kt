@@ -25,6 +25,6 @@ class GameInfoResponse {
 
     fun toGame(): Game? {
         if (id == null || name == null) return null
-        return Game(id, name, rating, ratingsCount, backgroundImage, description, released)
+        return Game(id, name, rating, ratingsCount, backgroundImage, released, description)
     }
 }
