@@ -43,8 +43,7 @@ class GameInfoViewModel @Inject constructor(private val repository: Repository):
 
     fun changeFavoriteGameStatus(isFavorite: Boolean) {
         val game = game.value ?: return
-        game.isFavoriteGame = !game.isFavoriteGame
-        _game.update { game }
+        _game.update { game.copy().also { it.isFavoriteGame = isFavorite } }
         viewModelScope.launch(Dispatchers.IO) {
             if (isFavorite) {
                 repository.insertFavoriteGame(game)

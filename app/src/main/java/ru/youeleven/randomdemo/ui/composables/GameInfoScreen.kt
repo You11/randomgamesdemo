@@ -28,16 +28,17 @@ fun GameInfoScreen(id: String?, viewModel: GameInfoViewModel) {
 
     viewModel.getGame(id)
     val game: Game? by viewModel.game.collectAsStateWithLifecycle()
-    game?.let {
-        Layout(it,
-            { viewModel.changeFavoriteGameStatus(true) },
-            { viewModel.changeFavoriteGameStatus(false) }
-        )
-    }
+
+    Layout(
+        game,
+        { viewModel.changeFavoriteGameStatus(true) },
+        { viewModel.changeFavoriteGameStatus(false) }
+    )
 }
 
 @Composable
-fun Layout(game: Game, onAddClick: () -> Unit, onRemoveClick: () -> Unit) {
+fun Layout(game: Game?, onAddClick: () -> Unit, onRemoveClick: () -> Unit) {
+    if (game == null) return
     Column(modifier = Modifier
         .fillMaxWidth()
         .verticalScroll(enabled = true, state = ScrollState(0))) {
