@@ -4,15 +4,14 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import ru.youeleven.randomdemo.data.local.Dao
-import ru.youeleven.randomdemo.data.local.models.GameFavoriteLocal
-import ru.youeleven.randomdemo.data.local.models.GameLocal
 import ru.youeleven.randomdemo.data.local.models.GameLocalWithRemoteKeys
 import ru.youeleven.randomdemo.data.models.Game
+import ru.youeleven.randomdemo.data.models.GameWithCount
 import ru.youeleven.randomdemo.data.remote.Api
 import ru.youeleven.randomdemo.ui.GamesMediator
+import ru.youeleven.randomdemo.ui.GamesPagingSource
 import ru.youeleven.randomdemo.utils.CallResult
 import java.io.IOException
-import java.util.Date
 import javax.inject.Inject
 
 
@@ -21,16 +20,16 @@ class Repository @Inject constructor(
     private val dao: Dao
 ) {
 
-    suspend fun getGames(page: Int): CallResult<List<Game>> {
+    suspend fun getGames(page: Int, search: String?, sort: String?): CallResult<GameWithCount> {
         return try {
-            val response = api.getGames(page)
+            val response = api.getGames(page, search, sort)
             if (response.isSuccessful) {
                 val data = response.body()
 
                 if (data != null) {
                     val games = data.toGames()
-                    if (games != null) {
-                        CallResult(games)
+                    if (games != null && data.count != null) {
+                        CallResult(GameWithCount(games = games, count = data.count))
                     } else {
                         CallResult(IOException(""))
                     }
@@ -86,12 +85,23 @@ class Repository @Inject constructor(
     }
 
     @OptIn(ExperimentalPagingApi::class)
-    fun getGamesPaginated(): Pager<Int, GameLocalWithRemoteKeys> {
+    fun getGamesPaginatedLocal(): Pager<Int, GameLocalWithRemoteKeys> {
         val pagingSourceFactory = { dao.getGames() }
 
         return Pager(
-            config = PagingConfig(pageSize = 20, initialLoadSize = 20),
+            config = PagingConfig(pageSize = 20),
             remoteMediator = GamesMediator(this),
+            pagingSourceFactory = pagingSourceFactory
+        )
+    }
+
+    fun getGamesPaginatedRemote(search: String?, sort: String?): Pager<Int, Game> {
+        val pagingSourceFactory = {
+            GamesPagingSource(this, search, sort)
+        }
+
+        return Pager(
+            config = PagingConfig(pageSize = 20),
             pagingSourceFactory = pagingSourceFactory
         )
     }

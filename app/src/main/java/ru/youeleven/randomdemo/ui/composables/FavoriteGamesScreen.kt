@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,9 +25,34 @@ import ru.youeleven.randomdemo.ui.viewmodels.FavoriteGamesViewModel
 @Composable
 fun FavoriteGamesScreen(viewModel: FavoriteGamesViewModel, onGameInfoClick: (Int) -> Unit) {
 
-    val games: List<Game> by viewModel.games.collectAsStateWithLifecycle()
-    viewModel.getGames()
-    Layout(games = games, onGameInfoClick = onGameInfoClick)
+    val games: List<Game> by viewModel.filtratedList.collectAsStateWithLifecycle()
+    val search: String? by viewModel.searchQueue.collectAsStateWithLifecycle()
+
+    Column {
+        GamesSearchBar(
+            search = search,
+            onQueryChange = {
+                viewModel.onQueryChange(it)
+            },
+            onSearch = {
+                viewModel.onSearch(it)
+            }
+        )
+        Layout(games = games, onGameInfoClick = onGameInfoClick)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GamesSearchBar(search: String?, onQueryChange: (String) -> Unit, onSearch: (String) -> Unit) {
+    SearchBar(
+        query = search ?: "",
+        onQueryChange = { onQueryChange.invoke(it) },
+        onSearch = { onSearch.invoke(it) },
+        active = false,
+        onActiveChange = {},
+        modifier = Modifier.fillMaxWidth()
+    ) {}
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,9 +84,11 @@ fun Layout(games: List<Game>, onGameInfoClick: (Int) -> Unit) {
                         text = it.name,
                         maxLines = 2
                     )
-                    Text(text = "${it.rating ?: ""} | ${it.ratingCount}", modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp))
+                    Text(
+                        text = "${it.rating ?: ""} | ${it.ratingCount}", modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    )
                 }
             }
         }

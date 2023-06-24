@@ -1,5 +1,6 @@
 package ru.youeleven.randomdemo.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,12 +18,33 @@ import javax.inject.Inject
 class FavoriteGamesViewModel @Inject constructor(private val repository: Repository): ViewModel() {
 
     private val _games = MutableStateFlow<List<Game>>(emptyList())
-    val games: StateFlow<List<Game>> = _games.asStateFlow()
+
+    private val _filtratedList = MutableStateFlow<List<Game>>(emptyList())
+    val filtratedList: StateFlow<List<Game>> = _filtratedList
+
+    private val _searchQueue = MutableStateFlow<String?>(null)
+    val searchQueue: StateFlow<String?> = _searchQueue.asStateFlow()
 
 
-    fun getGames() {
+    init {
+        getGames()
+    }
+
+    private fun getGames() {
         viewModelScope.launch(Dispatchers.IO) {
-            _games.update { repository.getFavoriteGames() }
+            val results = repository.getFavoriteGames()
+            _games.update { results }
+            _filtratedList.update { results }
+        }
+    }
+
+    fun onQueryChange(query: String) {
+        _searchQueue.update { query }
+    }
+
+    fun onSearch(search: String) {
+        _filtratedList.update {
+            _games.value.filter { it.name.startsWith(search, ignoreCase = true) }
         }
     }
 }

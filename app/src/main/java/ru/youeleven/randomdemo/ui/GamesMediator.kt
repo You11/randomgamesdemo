@@ -16,13 +16,14 @@ import ru.youeleven.randomdemo.data.local.AppDatabase
 import ru.youeleven.randomdemo.data.local.models.GameLocalWithRemoteKeys
 import ru.youeleven.randomdemo.data.local.models.GameRemoteKeysLocal
 import ru.youeleven.randomdemo.data.repository.Repository
+import ru.youeleven.randomdemo.di.DbEntryPoint
 import java.io.IOException
 
 @ExperimentalPagingApi
 class GamesMediator(val repository: Repository): RemoteMediator<Int, GameLocalWithRemoteKeys>() {
 
     private val initialPage = 1
-    var db: AppDatabase = getLogDao(App.instance)
+    private val db: AppDatabase = DbEntryPoint.getLogDao(App.instance)
 
 
     override suspend fun load(
@@ -45,7 +46,7 @@ class GamesMediator(val repository: Repository): RemoteMediator<Int, GameLocalWi
                 }
             }
 
-            val response = repository.getGames(page = page)
+            val response = repository.getGames(page = page, null, null)
             if (response.isSuccess) {
                 db.withTransaction {
                     if (loadType == LoadType.REFRESH) {
@@ -54,9 +55,9 @@ class GamesMediator(val repository: Repository): RemoteMediator<Int, GameLocalWi
                     }
                     val prevKey = if (page == initialPage) null else page - 1
                     val nextKey = page + 1
-                    val keys = response.data.map { GameRemoteKeysLocal(gameId = it.id, prevKey = prevKey, nextKey = nextKey) }
+                    val keys = response.data.games.map { GameRemoteKeysLocal(gameId = it.id, prevKey = prevKey, nextKey = nextKey) }
                     db.dao().insertGamesRemoteKeys(keys)
-                    db.dao().insertGames(response.data.map { it.asGameLocal() })
+                    db.dao().insertGames(response.data.games.map { it.asGameLocal() })
                 }
 
                 return MediatorResult.Success(endOfPaginationReached = false)
@@ -86,19 +87,5 @@ class GamesMediator(val repository: Repository): RemoteMediator<Int, GameLocalWi
 
     override suspend fun initialize(): InitializeAction {
         return InitializeAction.LAUNCH_INITIAL_REFRESH
-    }
-
-    @InstallIn(SingletonComponent::class)
-    @EntryPoint
-    interface DbProviderEntryPoint {
-        fun db(): AppDatabase
-    }
-
-    private fun getLogDao(appContext: Context): AppDatabase {
-        val hiltEntryPoint = EntryPointAccessors.fromApplication(
-            appContext,
-            DbProviderEntryPoint::class.java
-        )
-        return hiltEntryPoint.db()
     }
 }

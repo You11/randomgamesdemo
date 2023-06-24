@@ -5,6 +5,7 @@ import ru.youeleven.randomdemo.data.models.Game
 
 class GameResponse {
 
+    val count: Int? = null
 
     val results: List<Result>? = null
 

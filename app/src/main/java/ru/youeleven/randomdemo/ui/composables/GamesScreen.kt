@@ -26,7 +26,7 @@ import ru.youeleven.randomdemo.ui.viewmodels.GamesViewModel
 @Composable
 fun GamesScreen(gameViewModel: GamesViewModel, onGameInfoClick: (Int) -> Unit) {
 
-    val games = gameViewModel.getGames().collectAsLazyPagingItems()
+    val games = gameViewModel.getGames(null, null).collectAsLazyPagingItems()
 
     LazyVerticalGrid(
         modifier = Modifier.padding(top = 12.dp, start = 12.dp, end = 12.dp),
@@ -36,10 +36,10 @@ fun GamesScreen(gameViewModel: GamesViewModel, onGameInfoClick: (Int) -> Unit) {
     ) {
         items(
             count = games.itemCount,
-            key = games.itemKey { it.remoteKeys.id },
+            key = games.itemKey { it.id },
             contentType = games.itemContentType { "" }
         ) { index ->
-            val game = games[index]?.game
+            val game = games[index]
 
             Card(
                 shape = RoundedCornerShape(8.dp),
