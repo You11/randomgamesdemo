@@ -29,7 +29,7 @@ fun FavoriteGamesScreen(viewModel: FavoriteGamesViewModel, onGameInfoClick: (Int
     val search: String? by viewModel.searchQueue.collectAsStateWithLifecycle()
 
     Column {
-        GamesSearchBar(
+        FavoriteGamesSearchBar(
             search = search,
             onQueryChange = {
                 viewModel.onQueryChange(it)
@@ -44,7 +44,7 @@ fun FavoriteGamesScreen(viewModel: FavoriteGamesViewModel, onGameInfoClick: (Int
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GamesSearchBar(search: String?, onQueryChange: (String) -> Unit, onSearch: (String) -> Unit) {
+fun FavoriteGamesSearchBar(search: String?, onQueryChange: (String) -> Unit, onSearch: (String) -> Unit) {
     SearchBar(
         query = search ?: "",
         onQueryChange = { onQueryChange.invoke(it) },

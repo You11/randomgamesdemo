@@ -11,23 +11,46 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
+import ru.youeleven.randomdemo.data.models.Game
 import ru.youeleven.randomdemo.ui.viewmodels.GamesViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GamesScreen(gameViewModel: GamesViewModel, onGameInfoClick: (Int) -> Unit) {
 
-    val games = gameViewModel.getGames(null, null).collectAsLazyPagingItems()
+    val games = gameViewModel.games.collectAsLazyPagingItems()
+    val search: String? by gameViewModel.searchQueue.collectAsStateWithLifecycle()
 
+    Column {
+        GamesSearchBar(
+            search = search,
+            onQueryChange = {
+                gameViewModel.onQueryChange(it)
+            },
+            onSearch = {
+                gameViewModel.onSearch(it)
+            }
+        )
+
+        GamesLazyColumn(games, onGameInfoClick)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GamesLazyColumn(games: LazyPagingItems<Game>, onGameInfoClick: (Int) -> Unit) {
     LazyVerticalGrid(
         modifier = Modifier.padding(top = 12.dp, start = 12.dp, end = 12.dp),
         columns = GridCells.Fixed(2),
@@ -74,4 +97,17 @@ fun GamesScreen(gameViewModel: GamesViewModel, onGameInfoClick: (Int) -> Unit) {
 
         //TODO: Loading indicator
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GamesSearchBar(search: String?, onQueryChange: (String) -> Unit, onSearch: (String) -> Unit) {
+    SearchBar(
+        query = search ?: "",
+        onQueryChange = { onQueryChange.invoke(it) },
+        onSearch = { onSearch.invoke(it) },
+        active = false,
+        onActiveChange = {},
+        modifier = Modifier.fillMaxWidth()
+    ) {}
 }

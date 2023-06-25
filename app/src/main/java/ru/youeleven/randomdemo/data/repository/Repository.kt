@@ -3,6 +3,10 @@ package ru.youeleven.randomdemo.data.repository
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import ru.youeleven.randomdemo.data.local.Dao
 import ru.youeleven.randomdemo.data.local.models.GameLocalWithRemoteKeys
 import ru.youeleven.randomdemo.data.models.Game
@@ -84,8 +88,16 @@ class Repository @Inject constructor(
         return dao.getFavoriteGame(id).asGame()
     }
 
+    fun getGamesPaginated(search: String?, sort: String?): Flow<PagingData<Game>> {
+        return if (search == null && sort == null) {
+            getGamesPaginatedLocal().flow.map { pagingData -> pagingData.map { it.game.asGame() } }
+        } else {
+            getGamesPaginatedRemote(search, sort).flow.map { pagingData -> pagingData.map { it } }
+        }
+    }
+
     @OptIn(ExperimentalPagingApi::class)
-    fun getGamesPaginatedLocal(): Pager<Int, GameLocalWithRemoteKeys> {
+    private fun getGamesPaginatedLocal(): Pager<Int, GameLocalWithRemoteKeys> {
         val pagingSourceFactory = { dao.getGames() }
 
         return Pager(
@@ -95,7 +107,7 @@ class Repository @Inject constructor(
         )
     }
 
-    fun getGamesPaginatedRemote(search: String?, sort: String?): Pager<Int, Game> {
+    private fun getGamesPaginatedRemote(search: String?, sort: String?): Pager<Int, Game> {
         val pagingSourceFactory = {
             GamesPagingSource(this, search, sort)
         }

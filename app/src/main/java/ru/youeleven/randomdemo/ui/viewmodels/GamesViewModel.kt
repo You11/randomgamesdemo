@@ -10,8 +10,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import ru.youeleven.randomdemo.data.models.Game
 import ru.youeleven.randomdemo.data.repository.Repository
 import javax.inject.Inject
@@ -22,18 +25,22 @@ class GamesViewModel @Inject constructor(private val repository: Repository): Vi
     private val _searchQueue = MutableStateFlow<String?>(null)
     val searchQueue: StateFlow<String?> = _searchQueue.asStateFlow()
 
+    var games: Flow<PagingData<Game>> = getGames(null, null)
 
-    fun getGames(search: String?, sort: String?): Flow<PagingData<Game>> {
-        return if (search.isNullOrBlank() && sort.isNullOrBlank()) {
-            repository.getGamesPaginatedLocal().flow.cachedIn(viewModelScope)
-                .map { pagingData -> pagingData.map { it.game.asGame() } }
-        } else {
-            repository.getGamesPaginatedRemote(search, sort).flow.cachedIn(viewModelScope)
-                .map { pagingData -> pagingData.map { it } }
-        }
+
+    private fun getGames(search: String?, sort: String?): Flow<PagingData<Game>> {
+        return repository.getGamesPaginated(search, sort)
     }
 
-    fun updateSearch(searchString: String) {
-        _searchQueue.update { searchString }
+    fun onQueryChange(query: String) {
+        _searchQueue.update { query }
+    }
+
+    fun onSearch(search: String) {
+        games = if (search.isBlank()) {
+            getGames(null, null)
+        } else {
+            getGames(search, null)
+        }
     }
 }

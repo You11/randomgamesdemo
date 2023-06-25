@@ -44,7 +44,7 @@ class FavoriteGamesViewModel @Inject constructor(private val repository: Reposit
 
     fun onSearch(search: String) {
         _filtratedList.update {
-            _games.value.filter { it.name.startsWith(search, ignoreCase = true) }
+            _games.value.filter { it.name.contains(search, ignoreCase = true) }
         }
     }
 }
