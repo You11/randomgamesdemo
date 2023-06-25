@@ -33,7 +33,7 @@ import ru.youeleven.randomdemo.ui.viewmodels.GamesViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen() {
+fun MainScreen(onThemeChange: (Boolean) -> Unit) {
     val controller = rememberNavController()
 
     Scaffold(
@@ -42,7 +42,7 @@ fun MainScreen() {
                 BottomAppBar() { BottomNavigationBar(navController = controller) }
         }
     ) {
-        NavHost(navController = controller)
+        NavHost(navController = controller, onThemeChange)
     }
 }
 
@@ -63,7 +63,7 @@ fun isCurrentRouteWithBottomBar(route: String?): Boolean {
 }
 
 @Composable
-fun NavHost(navController: NavHostController) {
+fun NavHost(navController: NavHostController, onThemeChange: (Boolean) -> Unit) {
 
     NavHost(navController, startDestination = BottomNavItem.Games.screenRoute) {
         composable(BottomNavItem.Games.screenRoute) {
@@ -96,7 +96,7 @@ fun NavHost(navController: NavHostController) {
             }
         }
         composable(BottomNavItem.Settings.screenRoute) {
-            SettingsScreen()
+            SettingsScreen(onThemeChange)
         }
     }
 }
