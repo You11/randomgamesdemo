@@ -1,15 +1,16 @@
-package ru.youeleven.randomdemo.ui.composables
+package ru.youeleven.randomdemo.ui.composables.screens
 
 import android.annotation.SuppressLint
-import android.widget.SearchView
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,6 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -27,45 +30,39 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import ru.youeleven.randomdemo.ui.BottomNavItem
+import ru.youeleven.randomdemo.ui.MainViewModel
+import ru.youeleven.randomdemo.ui.theme.RandomdemoTheme
 import ru.youeleven.randomdemo.ui.viewmodels.FavoriteGamesViewModel
 import ru.youeleven.randomdemo.ui.viewmodels.GameInfoViewModel
 import ru.youeleven.randomdemo.ui.viewmodels.GamesViewModel
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(onThemeChange: (Boolean) -> Unit) {
-    val controller = rememberNavController()
+fun MainScreen(viewModel: MainViewModel = viewModel()) {
+    val isDarkTheme by viewModel.isDarkTheme.collectAsStateWithLifecycle()
+    RandomdemoTheme(isDarkTheme) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            val controller = rememberNavController()
 
-    Scaffold(
-        bottomBar = {
-            if (isCurrentRouteWithBottomBar(controller.currentBackStackEntryAsState().value?.destination?.route))
-                BottomAppBar() { BottomNavigationBar(navController = controller) }
+            Scaffold(
+                bottomBar = {
+                    if (isCurrentRouteWithBottomBar(controller.currentBackStackEntryAsState().value?.destination?.route))
+                        BottomAppBar() { BottomNavigationBar(navController = controller) }
+                }
+            ) { paddingValues ->
+                NavHost(navController = controller, paddingValues) { isDarkTheme ->
+                    viewModel.updateDarkTheme(isDarkTheme)
+                }
+            }
         }
-    ) {
-        NavHost(navController = controller, onThemeChange)
     }
-}
-
-fun isCurrentRouteWithBottomBar(route: String?): Boolean {
-    if (route == null) return false
-
-    val routesWithBottomBar = listOf(
-        BottomNavItem.Games,
-        BottomNavItem.Favorites,
-        BottomNavItem.Settings
-    )
-
-    routesWithBottomBar.forEach {
-        if (route.startsWith(it.screenRoute)) return true
-    }
-
-    return false
 }
 
 @Composable
-fun NavHost(navController: NavHostController, onThemeChange: (Boolean) -> Unit) {
-
-    NavHost(navController, startDestination = BottomNavItem.Games.screenRoute) {
+fun NavHost(navController: NavHostController, paddingValues: PaddingValues, onThemeChange: (Boolean) -> Unit) {
+    NavHost(navController, startDestination = BottomNavItem.Games.screenRoute, modifier = Modifier.padding(paddingValues)) {
         composable(BottomNavItem.Games.screenRoute) {
             val parentEntry = remember(it) {
                 navController.getBackStackEntry(BottomNavItem.Games.screenRoute)
@@ -103,16 +100,10 @@ fun NavHost(navController: NavHostController, onThemeChange: (Boolean) -> Unit) 
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
-    val items = listOf(
-        BottomNavItem.Games,
-        BottomNavItem.Favorites,
-        BottomNavItem.Settings
-    )
-
     NavigationBar() {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
-        items.forEach { item ->
+        routesWithBottomBar.forEach { item ->
             NavigationBarItem(
                 icon = { if (item.icon != null) Icon(painterResource(id = item.icon), contentDescription = item.title) },
                 label = { Text(text = item.title, fontSize = 9.sp) },
@@ -120,7 +111,6 @@ fun BottomNavigationBar(navController: NavController) {
                 selected = currentRoute == item.screenRoute,
                 onClick = {
                     navController.navigate(item.screenRoute) {
-
                         navController.graph.startDestinationRoute?.let { screenRoute ->
                             popUpTo(screenRoute) {
                                 saveState = true
@@ -134,3 +124,19 @@ fun BottomNavigationBar(navController: NavController) {
         }
     }
 }
+
+private fun isCurrentRouteWithBottomBar(route: String?): Boolean {
+    if (route == null) return false
+
+    routesWithBottomBar.forEach {
+        if (route.startsWith(it.screenRoute)) return true
+    }
+
+    return false
+}
+
+private val routesWithBottomBar = listOf(
+    BottomNavItem.Games,
+    BottomNavItem.Favorites,
+    BottomNavItem.Settings
+)

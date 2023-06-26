@@ -1,12 +1,12 @@
-package ru.youeleven.randomdemo.ui.composables
+package ru.youeleven.randomdemo.ui.composables.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -15,65 +15,55 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemContentType
-import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import ru.youeleven.randomdemo.data.models.Game
-import ru.youeleven.randomdemo.ui.viewmodels.GamesViewModel
+import ru.youeleven.randomdemo.ui.composables.Rating
+import ru.youeleven.randomdemo.ui.viewmodels.FavoriteGamesViewModel
 
 @Composable
-fun GamesScreen(gameViewModel: GamesViewModel, onGameInfoClick: (Int) -> Unit) {
+fun FavoriteGamesScreen(viewModel: FavoriteGamesViewModel, onGameInfoClick: (Int) -> Unit) {
 
-    val games = gameViewModel.games.collectAsLazyPagingItems()
-    val search: String? by gameViewModel.searchQueue.collectAsStateWithLifecycle()
+    val games: List<Game> by viewModel.filtratedList.collectAsStateWithLifecycle()
+    val search: String? by viewModel.searchQueue.collectAsStateWithLifecycle()
 
     Column {
-        GamesSearchBar(
+        FavoriteGamesSearchBar(
             search = search,
             onQueryChange = {
-                gameViewModel.onQueryChange(it)
+                viewModel.onQueryChange(it)
             },
             onSearch = {
-                gameViewModel.onSearch(it)
+                viewModel.onSearch(it)
             }
         )
-
-        GamesLazyColumn(games, onGameInfoClick)
+        GameLayout(games = games, onGameInfoClick = onGameInfoClick)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GamesLazyColumn(games: LazyPagingItems<Game>, onGameInfoClick: (Int) -> Unit) {
-    LazyVerticalGrid(
-        modifier = Modifier.padding(top = 12.dp, start = 12.dp, end = 12.dp),
-        columns = GridCells.Fixed(2),
+fun GameLayout(games: List<Game>, onGameInfoClick: (Int) -> Unit) {
+    LazyColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        modifier = Modifier.padding(top = 8.dp, start = 12.dp, end = 12.dp)
     ) {
-        items(
-            count = games.itemCount,
-            key = games.itemKey { it.id },
-            contentType = games.itemContentType { "" }
-        ) { index ->
-            val game = games[index]
-
+        items(games) {
             Card(
                 shape = RoundedCornerShape(8.dp),
                 elevation = CardDefaults.cardElevation(),
-                onClick = {
-                    if (game?.id != null) onGameInfoClick.invoke(game.id)
-                }
+                onClick = { onGameInfoClick.invoke(it.id) }
             ) {
                 Column {
                     AsyncImage(
-                        model = game?.backgroundImage,
+                        model = it.backgroundImage,
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -85,29 +75,35 @@ fun GamesLazyColumn(games: LazyPagingItems<Game>, onGameInfoClick: (Int) -> Unit
                             .fillMaxWidth()
                             .height(64.dp)
                             .padding(8.dp),
-                        text = game?.name ?: "",
-                        maxLines = 2
+                        text = it.name,
+                        maxLines = 2,
+                        fontWeight = FontWeight(600)
                     )
-                    Text(text = "${game?.rating ?: ""} | ${game?.ratingCount}", modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp))
+                    if (it.rating != null && it.ratingCount != null) {
+                        Rating(
+                            rating = it.rating,
+                            numberOfRatings = it.ratingCount,
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp, start = 8.dp, end = 8.dp)
+                        )
+                    }
                 }
             }
         }
-
-        //TODO: Loading indicator
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GamesSearchBar(search: String?, onQueryChange: (String) -> Unit, onSearch: (String) -> Unit) {
+fun FavoriteGamesSearchBar(search: String?, onQueryChange: (String) -> Unit, onSearch: (String) -> Unit) {
+    var isActive by remember { mutableStateOf(false) }
     SearchBar(
-        query = search ?: "",
+        query = if (search.isNullOrBlank() && !isActive) "Search..." else search ?: "",
         onQueryChange = { onQueryChange.invoke(it) },
         onSearch = { onSearch.invoke(it) },
         active = false,
-        onActiveChange = {},
-        modifier = Modifier.fillMaxWidth()
+        onActiveChange = {
+            isActive = it
+        },
+        modifier = Modifier.fillMaxWidth().padding(8.dp)
     ) {}
 }
