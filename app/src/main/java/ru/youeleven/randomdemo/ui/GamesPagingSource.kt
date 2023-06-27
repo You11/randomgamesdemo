@@ -17,6 +17,7 @@ class GamesPagingSource(
     val sort: String?
 ) : PagingSource<Int, Game>() {
 
+    override val keyReuseSupported = true
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Game> {
         return try {
@@ -26,7 +27,7 @@ class GamesPagingSource(
                 LoadResult.Page(
                     data = response.data.games,
                     prevKey = null,
-                    nextKey = getLastPageNumber(response.data.count)
+                    nextKey = getNextKey(pageNumber, response.data.count)
                 )
             } else {
                 LoadResult.Error(response.error as Throwable)
@@ -43,6 +44,11 @@ class GamesPagingSource(
             val anchorPage = state.closestPageToPosition(anchorPosition)
             anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)
         }
+    }
+
+    private fun getNextKey(currentPage: Int, count: Int): Int? {
+        val lastPage = getLastPageNumber(count)
+        return if (currentPage < lastPage) currentPage + 1 else null
     }
 
     private fun getLastPageNumber(count: Int): Int {

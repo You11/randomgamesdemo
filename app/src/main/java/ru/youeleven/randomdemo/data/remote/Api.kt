@@ -14,7 +14,10 @@ interface Api {
         @Query("page") page: Int,
         @Query("search") search: String?,
         @Query("ordering") ordering: String?,
-        @Query("pageSize") pageSize: Int = 20
+        @Query("dates") dates: String,
+        @Query("page_size") pageSize: Int = 20,
+        @Query("exclude_additions") excludeAdditions: Boolean = true,
+        @Query("metacritic") metacritic: String = "1, 100"
     ): Response<GameResponse>
 
     @GET("games/{id}")

@@ -75,7 +75,7 @@ fun NavHost(navController: NavHostController, paddingValues: PaddingValues, onTh
             }
         }
         composable(
-            route = "game_info/{gameId}",
+            route = BottomNavItem.GameInfo.getScreenRouteNameWithArgsGeneric(BottomNavItem.GameInfo.argName),
             arguments = listOf(navArgument(BottomNavItem.GameInfo.argName) { type = NavType.StringType })
         ) {
             val viewModel = hiltViewModel<GameInfoViewModel>()

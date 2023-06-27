@@ -1,5 +1,6 @@
 package ru.youeleven.randomdemo.data.repository
 
+import android.text.format.DateFormat
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -16,6 +17,8 @@ import ru.youeleven.randomdemo.ui.GamesMediator
 import ru.youeleven.randomdemo.ui.GamesPagingSource
 import ru.youeleven.randomdemo.utils.CallResult
 import java.io.IOException
+import java.util.Calendar
+import java.util.Date
 import javax.inject.Inject
 
 
@@ -26,7 +29,7 @@ class Repository @Inject constructor(
 
     suspend fun getGames(page: Int, search: String?, sort: String?): CallResult<GameWithCount> {
         return try {
-            val response = api.getGames(page, search, sort)
+            val response = api.getGames(page, search, sort, getDates())
             if (response.isSuccessful) {
                 val data = response.body()
 
@@ -121,5 +124,16 @@ class Repository @Inject constructor(
     fun isFavoriteGame(id: Int): Boolean {
         val ids = dao.getFavoriteGamesIds()
         return ids.contains(id)
+    }
+
+    private fun getDates(): String {
+        fun format(date: Date): String {
+            return DateFormat.format("yyyy-MM-dd", date).toString()
+        }
+
+        val firstDate = format(Calendar.getInstance().also { it.set(1960, 1, 1) }.time)
+        val secondDate = format(Date())
+
+        return "$firstDate,$secondDate"
     }
 }
