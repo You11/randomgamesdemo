@@ -10,7 +10,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextLayoutResult
+import ru.youeleven.randomdemo.App
+import ru.youeleven.randomdemo.R
 
 @Composable
 fun ExpandingText(modifier: Modifier = Modifier, text: String) {
@@ -27,11 +30,11 @@ fun ExpandingText(modifier: Modifier = Modifier, text: String) {
 
         when {
             isExpanded -> {
-                finalText = "$text Show Less"
+                finalText = "$text " + App.instance.getString(R.string.expanding_text_less)
             }
             textLayoutResult.hasVisualOverflow -> {
                 val lastCharIndex = textLayoutResult.getLineEnd(maxLines - 1)
-                val showMoreString = "... Show More"
+                val showMoreString = "... " + App.instance.getString(R.string.expanding_text_more)
                 val adjustedText = text
                     .substring(startIndex = 0, endIndex = lastCharIndex)
                     .dropLast(showMoreString.length)

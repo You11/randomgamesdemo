@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import ru.youeleven.randomdemo.R
 import ru.youeleven.randomdemo.data.models.Game
 import ru.youeleven.randomdemo.ui.composables.ExpandingText
 import ru.youeleven.randomdemo.ui.composables.Rating
@@ -57,7 +59,9 @@ fun GameLayout(game: Game?, onAddClick: () -> Unit, onRemoveClick: () -> Unit) {
         )
 
         Text(text = game.name,
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
             fontWeight = FontWeight(weight = 600),
             fontSize = 18.sp
         )
@@ -80,14 +84,14 @@ fun GameLayout(game: Game?, onAddClick: () -> Unit, onRemoveClick: () -> Unit) {
         }
 
         val date = game.released?.let { DateFormat.getDateInstance(DateFormat.MEDIUM).format(it) }
-        if (date != null) Text(text = "Дата выхода: $date", modifier = Modifier
+        if (date != null) Text(text = stringResource(id = R.string.game_info_release_date, date), modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp))
 
         if (!game.isFavoriteGame) {
-            GameInfoGameStatusButton(onClick = { onAddClick.invoke() }, text = "Добавить")
+            GameInfoGameStatusButton(onClick = { onAddClick.invoke() }, text = stringResource(id = R.string.game_info_add_game))
         } else {
-            GameInfoGameStatusButton(onClick = { onRemoveClick.invoke() }, text = "Удалить")
+            GameInfoGameStatusButton(onClick = { onRemoveClick.invoke() }, text = stringResource(id = R.string.game_info_remove_game))
         }
     }
 }

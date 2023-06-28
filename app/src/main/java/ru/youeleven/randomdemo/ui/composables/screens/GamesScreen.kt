@@ -1,6 +1,8 @@
 package ru.youeleven.randomdemo.ui.composables.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,6 +20,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -36,6 +39,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -126,32 +130,34 @@ fun GamesModalBottomSheet(
         },
         sheetState = sheetState
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text(text = "Filter")
+        Text(text = "Filter", fontSize = 18.sp, modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 12.dp))
 
-            Text(text = "By default", modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    onSelectFilterClick.invoke(SortingRequest.BY_DEFAULT)
-                }.background(if (selectedFilter == SortingRequest.BY_DEFAULT) Color.Magenta else Color.Transparent))
-            Text(text = "By rating", modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    onSelectFilterClick.invoke(SortingRequest.BY_RATING)
-                }.background(if (selectedFilter == SortingRequest.BY_RATING) Color.Magenta else Color.Transparent))
-            Text(text = "By Metacritic", modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    onSelectFilterClick.invoke(SortingRequest.BY_METACRITIC)
-                }.background(if (selectedFilter == SortingRequest.BY_METACRITIC) Color.Magenta else Color.Transparent))
-            Text(text = "By release date", modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    onSelectFilterClick.invoke(SortingRequest.BY_RELEASE_DATE)
-                }.background(if (selectedFilter == SortingRequest.BY_RELEASE_DATE) Color.Magenta else Color.Transparent))
-        }
+        SortOption(
+            text = "By default",
+            sortingRequest = SortingRequest.BY_DEFAULT,
+            onSelectFilterClick = {onSelectFilterClick.invoke(SortingRequest.BY_DEFAULT)},
+            selectedFilter = selectedFilter
+        )
+        SortOption(
+            text = "By rating",
+            sortingRequest = SortingRequest.BY_RATING,
+            onSelectFilterClick = {onSelectFilterClick.invoke(SortingRequest.BY_RATING)},
+            selectedFilter = selectedFilter
+        )
+        SortOption(
+            text = "By Metacritic",
+            sortingRequest = SortingRequest.BY_METACRITIC,
+            onSelectFilterClick = {onSelectFilterClick.invoke(SortingRequest.BY_METACRITIC)},
+            selectedFilter = selectedFilter
+        )
+        SortOption(
+            text = "By release date",
+            sortingRequest = SortingRequest.BY_RELEASE_DATE,
+            onSelectFilterClick = {onSelectFilterClick.invoke(SortingRequest.BY_RELEASE_DATE)},
+            selectedFilter = selectedFilter
+        )
 
-        Button(onClick = {
+        Button(modifier = Modifier.padding(vertical = 12.dp, horizontal = 8.dp).fillMaxWidth(), onClick = {
             scope.launch { sheetState.hide() }.invokeOnCompletion {
                 if (!sheetState.isVisible) {
                     onFilterClick.invoke()
@@ -159,10 +165,24 @@ fun GamesModalBottomSheet(
                 }
             }
         }) {
-            Text("Accept")
+            Text("Sort")
         }
     }
+}
 
+@Composable
+fun SortOption(text: String,
+               sortingRequest: SortingRequest,
+               onSelectFilterClick: (SortingRequest) -> Unit,
+               selectedFilter: SortingRequest
+) {
+    Text(text = text, modifier = Modifier
+        .fillMaxWidth()
+        .clickable { onSelectFilterClick.invoke(sortingRequest) }
+        .background(if (selectedFilter == sortingRequest) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
+        .padding(8.dp)
+        .clip(RoundedCornerShape(8.dp))
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -219,16 +239,5 @@ fun GamesLazyColumn(games: LazyPagingItems<Game>?, onGameInfoClick: (Int) -> Uni
         }
 
         //TODO: Loading indicator
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun GamesFilterBottomSheet() {
-    ModalBottomSheet(onDismissRequest = {}) {
-        Column {
-            Text(text = "meow")
-            Text(text = "meow2")
-        }
     }
 }

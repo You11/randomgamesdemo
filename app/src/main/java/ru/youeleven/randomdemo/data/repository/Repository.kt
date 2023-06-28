@@ -16,6 +16,7 @@ import ru.youeleven.randomdemo.data.remote.Api
 import ru.youeleven.randomdemo.ui.GamesMediator
 import ru.youeleven.randomdemo.ui.GamesPagingSource
 import ru.youeleven.randomdemo.utils.CallResult
+import ru.youeleven.randomdemo.utils.Consts
 import java.io.IOException
 import java.util.Calendar
 import java.util.Date
@@ -104,7 +105,7 @@ class Repository @Inject constructor(
         val pagingSourceFactory = { dao.getGames() }
 
         return Pager(
-            config = PagingConfig(pageSize = 20),
+            config = PagingConfig(pageSize = Consts.PAGE_SIZE),
             remoteMediator = GamesMediator(this),
             pagingSourceFactory = pagingSourceFactory
         )
@@ -116,7 +117,7 @@ class Repository @Inject constructor(
         }
 
         return Pager(
-            config = PagingConfig(pageSize = 20),
+            config = PagingConfig(pageSize = Consts.PAGE_SIZE),
             pagingSourceFactory = pagingSourceFactory
         )
     }

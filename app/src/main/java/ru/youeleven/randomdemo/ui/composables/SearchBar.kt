@@ -10,7 +10,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import ru.youeleven.randomdemo.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -18,7 +20,7 @@ fun GamesSearchBar(modifier: Modifier = Modifier, search: String?, onQueryChange
     var isActive by remember { mutableStateOf(false) }
 
     SearchBar(
-        query = if (search.isNullOrBlank() && !isActive) "Search..." else search ?: "",
+        query = if (search.isNullOrBlank() && !isActive) stringResource(id = R.string.search) else search ?: "",
         onQueryChange = { onQueryChange.invoke(it) },
         onSearch = { onSearch.invoke(it) },
         active = false,

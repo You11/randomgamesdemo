@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">randomdemo</string>
+
+    <string name="game_info_release_date">Дата выхода: %1$s</string>
+    <string name="game_info_add_game">Добавить</string>
+    <string name="game_info_remove_game">Удалить</string>
+    <string name="settings_dark_mode">Темный режим:</string>
+    <string name="expanding_text_more">Развернуть</string>
+    <string name="expanding_text_less">Скрыть</string>
+    <string name="search">Поиск...</string>
+
+    <string name="games_screen_name">Игры</string>
+    <string name="favorite_screen_name">Избранное</string>
+    <string name="settings_screen_name">Настройки</string>
+    <string name="game_info_screen_name">Игра</string>
+
+    <string name="default_error">Ошибка</string>
 </resources>

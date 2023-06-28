@@ -16,10 +16,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
+import ru.youeleven.randomdemo.R
 import ru.youeleven.randomdemo.ui.viewmodels.SettingsViewModel
 import java.util.Locale
 
@@ -35,7 +37,7 @@ fun SettingsScreen(onThemeChange: (Boolean) -> Unit, viewModel: SettingsViewMode
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = "Dark mode:")
+        Text(text = stringResource(id = R.string.settings_dark_mode))
         Switch(checked = isDarkTheme, onCheckedChange = {
             onThemeChange(it)
             viewModel.enableDarkTheme(it)

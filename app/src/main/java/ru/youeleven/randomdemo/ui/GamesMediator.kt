@@ -17,7 +17,9 @@ import ru.youeleven.randomdemo.data.local.models.GameLocalWithRemoteKeys
 import ru.youeleven.randomdemo.data.local.models.GameRemoteKeysLocal
 import ru.youeleven.randomdemo.data.repository.Repository
 import ru.youeleven.randomdemo.di.DbEntryPoint
+import ru.youeleven.randomdemo.utils.Consts
 import java.io.IOException
+import kotlin.math.ceil
 
 @ExperimentalPagingApi
 class GamesMediator(val repository: Repository): RemoteMediator<Int, GameLocalWithRemoteKeys>() {
@@ -54,7 +56,7 @@ class GamesMediator(val repository: Repository): RemoteMediator<Int, GameLocalWi
                         db.dao().deleteAllGames()
                     }
                     val prevKey = if (page == initialPage) null else page - 1
-                    val nextKey = page + 1
+                    val nextKey = getNextKey(page, response.data.count)
                     val keys = response.data.games.map { GameRemoteKeysLocal(gameId = it.id, prevKey = prevKey, nextKey = nextKey) }
                     db.dao().insertGamesRemoteKeys(keys)
                     db.dao().insertGames(response.data.games.map { it.asGameLocal() })
@@ -75,6 +77,15 @@ class GamesMediator(val repository: Repository): RemoteMediator<Int, GameLocalWi
         return db.withTransaction {
             db.dao().getGameLastRemoteKey()
         }
+    }
+
+    private fun getNextKey(currentPage: Int, count: Int): Int? {
+        val lastPage = getLastPageNumber(count)
+        return if (currentPage < lastPage) currentPage + 1 else null
+    }
+
+    private fun getLastPageNumber(count: Int): Int {
+        return if (count == 0) return 1 else ceil(count.toDouble() / Consts.PAGE_SIZE).toInt()
     }
 
     private suspend fun getRemoteKeyClosestToCurrentPosition(state: PagingState<Int, GameLocalWithRemoteKeys>): GameRemoteKeysLocal? {

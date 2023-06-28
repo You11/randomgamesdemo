@@ -1,5 +1,7 @@
 package ru.youeleven.randomdemo.utils
 
+import ru.youeleven.randomdemo.App
+import ru.youeleven.randomdemo.R
 import java.io.IOException
 
 class CallResult<T> {
@@ -25,6 +27,6 @@ class CallResult<T> {
         get() = _error?.message ?: ""
 
     companion object {
-        val DEFAULT_ERROR_MESSAGE: String = "Error"
+        val DEFAULT_ERROR_MESSAGE: String = App.instance.getString(R.string.default_error)
     }
 }

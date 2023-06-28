@@ -6,6 +6,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import ru.youeleven.randomdemo.data.remote.models.GameInfoResponse
 import ru.youeleven.randomdemo.data.remote.models.GameResponse
+import ru.youeleven.randomdemo.utils.Consts
 
 interface Api {
 
@@ -15,7 +16,7 @@ interface Api {
         @Query("search") search: String?,
         @Query("ordering") ordering: String?,
         @Query("dates") dates: String,
-        @Query("page_size") pageSize: Int = 20,
+        @Query("page_size") pageSize: Int = Consts.PAGE_SIZE,
         @Query("exclude_additions") excludeAdditions: Boolean = true,
         @Query("metacritic") metacritic: String = "1, 100"
     ): Response<GameResponse>
