@@ -54,17 +54,39 @@ class Repository @Inject constructor(
 
     suspend fun getGameInfo(id: Int): CallResult<Game> {
         return try {
-            val response = api.getGameInfo(id)
-            if (response.isSuccessful) {
-                val data = response.body()
+            val responseGame = api.getGameInfo(id)
+            if (responseGame.isSuccessful) {
+                val data = responseGame.body()
 
                 if (data != null) {
                     val game = data.toGame()
                     if (game != null) {
+                        val screenshots = getScreenshots(id)
+                        if (screenshots.isSuccess) game.screenshots = getScreenshots(id).data
                         CallResult(game)
                     } else {
                         CallResult(IOException(""))
                     }
+                } else {
+                    CallResult(IOException("Wrong data"))
+                }
+            } else {
+                CallResult(IOException("Empty body"))
+            }
+        } catch (e: Exception) {
+            CallResult(e)
+        }
+    }
+
+    private suspend fun getScreenshots(id: Int): CallResult<List<String>> {
+        return try {
+            val response = api.getGameScreenshots(id)
+            if (response.isSuccessful) {
+                val data = response.body()
+
+                if (data != null) {
+                    val images = data.results?.map { it.image ?: return CallResult(emptyList()) }
+                    CallResult(images ?: emptyList())
                 } else {
                     CallResult(IOException("Wrong data"))
                 }

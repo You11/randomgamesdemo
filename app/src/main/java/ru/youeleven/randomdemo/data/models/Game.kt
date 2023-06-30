@@ -14,10 +14,11 @@ data class Game(
     val description: String?
 ) {
     var isFavoriteGame = false
+    var screenshots = emptyList<String>()
 
     fun asGameLocal() = GameLocal(id, name, rating, ratingCount, backgroundImage, released)
 
-    fun asGameFavoriteLocal() = GameFavoriteLocal(id, name, rating, ratingCount, backgroundImage, description, released, null)
+    fun asGameFavoriteLocal() = GameFavoriteLocal(id, name, rating, ratingCount, backgroundImage, description, released, screenshots)
 
 
     override fun equals(other: Any?): Boolean {
@@ -33,6 +34,7 @@ data class Game(
         if (backgroundImage != other.backgroundImage) return false
         if (released != other.released) return false
         if (description != other.description) return false
+        if (screenshots != other.screenshots) return false
         if (isFavoriteGame != other.isFavoriteGame) return false
 
         return true
@@ -46,9 +48,8 @@ data class Game(
         result = 31 * result + (backgroundImage?.hashCode() ?: 0)
         result = 31 * result + (released?.hashCode() ?: 0)
         result = 31 * result + (description?.hashCode() ?: 0)
+        result = 31 * result + screenshots.hashCode()
         result = 31 * result + isFavoriteGame.hashCode()
         return result
     }
-
-
 }

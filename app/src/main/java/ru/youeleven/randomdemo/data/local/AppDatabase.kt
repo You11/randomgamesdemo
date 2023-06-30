@@ -15,7 +15,7 @@ import ru.youeleven.randomdemo.data.local.models.GameRemoteKeysLocal
     GameRemoteKeysLocal::class,
     GameFavoriteLocal::class
 ], version = 1)
-@TypeConverters(DateConverter::class)
+@TypeConverters(DateConverter::class, ListConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun dao(): Dao

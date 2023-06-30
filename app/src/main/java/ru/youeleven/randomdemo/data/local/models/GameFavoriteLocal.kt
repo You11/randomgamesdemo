@@ -15,8 +15,10 @@ class GameFavoriteLocal(
     val backgroundImage: String?,
     val description: String?,
     val released: Date?,
-    val addDate: Date?,
-
+    val screenshots: List<String>
 ) {
-    fun asGame() = Game(id, name, rating, ratingCount, backgroundImage, released, description).also { it.isFavoriteGame = true }
+    fun asGame() = Game(id, name, rating, ratingCount, backgroundImage, released, description).also {
+        it.isFavoriteGame = true
+        it.screenshots = screenshots
+    }
 }
