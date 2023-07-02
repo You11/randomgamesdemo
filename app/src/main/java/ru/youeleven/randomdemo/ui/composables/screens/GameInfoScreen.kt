@@ -1,7 +1,9 @@
 package ru.youeleven.randomdemo.ui.composables.screens
 
+import android.content.Context
 import android.os.Build
 import android.text.Html
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -29,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -43,7 +46,9 @@ import ru.youeleven.randomdemo.R
 import ru.youeleven.randomdemo.data.models.Game
 import ru.youeleven.randomdemo.ui.composables.ExpandingText
 import ru.youeleven.randomdemo.ui.composables.Rating
+import ru.youeleven.randomdemo.ui.showErrorIfExists
 import ru.youeleven.randomdemo.ui.viewmodels.GameInfoViewModel
+import ru.youeleven.randomdemo.utils.Event
 import java.text.DateFormat
 
 @Composable
@@ -51,6 +56,9 @@ fun GameInfoScreen(id: String?, viewModel: GameInfoViewModel) {
 
     viewModel.getGame(id)
     val game: Game? by viewModel.game.collectAsStateWithLifecycle()
+    val errorEvent by viewModel.errorText.collectAsStateWithLifecycle()
+    showErrorIfExists(errorEvent, LocalContext.current)
+
 
     GameLayout(
         game,
@@ -145,7 +153,10 @@ fun ScreenshotsRow(screenshots: List<String>, onImageClick: (Int) -> Unit) {
             if (index != screenshots.size - 1)
                 Divider(
                     thickness = 3.dp,
-                    modifier = Modifier.fillMaxHeight().width(3.dp).background(Color.Black)
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(3.dp)
+                        .background(Color.Black)
                 )
         }
     }

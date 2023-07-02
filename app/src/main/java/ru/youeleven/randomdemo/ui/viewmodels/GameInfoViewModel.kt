@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.youeleven.randomdemo.data.models.Game
 import ru.youeleven.randomdemo.data.repository.Repository
+import ru.youeleven.randomdemo.utils.Event
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,6 +20,9 @@ class GameInfoViewModel @Inject constructor(private val repository: Repository):
 
     private val _game = MutableStateFlow<Game?>(null)
     val game: StateFlow<Game?> = _game.asStateFlow()
+
+    private val _errorText = MutableStateFlow<Event<String?>>(Event(null))
+    val errorText: StateFlow<Event<String?>> = _errorText
 
 
     fun getGame(id: String?) {
@@ -32,6 +36,8 @@ class GameInfoViewModel @Inject constructor(private val repository: Repository):
                 val result = repository.getGameInfo(intId)
                 if (result.isSuccess) {
                     _game.update { result.data }
+                } else {
+                    _errorText.update { Event(result.error?.localizedMessage) }
                 }
             }
         }

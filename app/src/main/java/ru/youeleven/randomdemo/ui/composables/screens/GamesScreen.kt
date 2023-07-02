@@ -1,8 +1,6 @@
 package ru.youeleven.randomdemo.ui.composables.screens
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -36,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -52,18 +51,21 @@ import ru.youeleven.randomdemo.R
 import ru.youeleven.randomdemo.data.models.Game
 import ru.youeleven.randomdemo.ui.composables.GamesSearchBar
 import ru.youeleven.randomdemo.ui.composables.Rating
+import ru.youeleven.randomdemo.ui.showErrorIfExists
 import ru.youeleven.randomdemo.ui.viewmodels.GamesViewModel
 import ru.youeleven.randomdemo.utils.SortingRequest
 import ru.youeleven.randomdemo.utils.SearchRequest
 
 @Composable
-fun GamesScreen(gameViewModel: GamesViewModel, onGameInfoClick: (Int) -> Unit) {
+fun GamesScreen(viewModel: GamesViewModel, onGameInfoClick: (Int) -> Unit) {
 
-    val search: SearchRequest? by gameViewModel.searchText.collectAsStateWithLifecycle()
-    val gamesFlow: Flow<PagingData<Game>>? by gameViewModel.games.collectAsStateWithLifecycle()
+    val search: SearchRequest? by viewModel.searchText.collectAsStateWithLifecycle()
+    val gamesFlow: Flow<PagingData<Game>>? by viewModel.games.collectAsStateWithLifecycle()
     val games = gamesFlow?.collectAsLazyPagingItems()
-    val editingFilter by gameViewModel.sortInEdit.collectAsStateWithLifecycle()
+    val editingFilter by viewModel.sortInEdit.collectAsStateWithLifecycle()
     var showBottomSheet by remember { mutableStateOf(false) }
+    val errorEvent by viewModel.errorText.collectAsStateWithLifecycle()
+    showErrorIfExists(errorEvent, LocalContext.current)
 
     Column {
         Row(
@@ -76,10 +78,10 @@ fun GamesScreen(gameViewModel: GamesViewModel, onGameInfoClick: (Int) -> Unit) {
             GamesSearchBar(
                 search = search?.search,
                 onQueryChange = {
-                    gameViewModel.onSearchEdit(it)
+                    viewModel.onSearchEdit(it)
                 },
                 onSearch = {
-                    gameViewModel.onSearchSubmit(it)
+                    viewModel.onSearchSubmit(it)
                 },
                 modifier = Modifier.width(LocalConfiguration.current.screenWidthDp.dp - 64.dp)
             )
@@ -103,10 +105,10 @@ fun GamesScreen(gameViewModel: GamesViewModel, onGameInfoClick: (Int) -> Unit) {
                 },
                 selectedFilter = editingFilter,
                 onSelectFilterClick = {
-                    gameViewModel.onSortEdit(it)
+                    viewModel.onSortEdit(it)
                 },
                 onFilterClick = {
-                    gameViewModel.onSortSubmit()
+                    viewModel.onSortSubmit()
                 }
             )
         }

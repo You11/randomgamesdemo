@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import ru.youeleven.randomdemo.data.models.Game
 import ru.youeleven.randomdemo.data.repository.Repository
+import ru.youeleven.randomdemo.utils.Event
 import ru.youeleven.randomdemo.utils.SortingRequest
 import ru.youeleven.randomdemo.utils.SearchRequest
 import javax.inject.Inject
@@ -33,6 +34,9 @@ class GamesViewModel @Inject constructor(private val repository: Repository): Vi
 
     private val _sortInEdit = MutableStateFlow(SortingRequest.BY_DEFAULT)
     val sortInEdit: StateFlow<SortingRequest> = _sortInEdit
+
+    private val _errorText = MutableStateFlow<Event<String?>>(Event(null))
+    val errorText: StateFlow<Event<String?>> = _errorText
 
 
     private fun getGames(search: String?, sort: String?): Flow<PagingData<Game>> {
