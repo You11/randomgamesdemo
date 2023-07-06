@@ -49,7 +49,7 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
             Scaffold(
                 bottomBar = {
                     if (isCurrentRouteWithBottomBar(controller.currentBackStackEntryAsState().value?.destination?.route))
-                        BottomAppBar() { BottomNavigationBar(navController = controller) }
+                        BottomAppBar { BottomNavigationBar(navController = controller) }
                 }
             ) { paddingValues ->
                 NavHost(navController = controller, paddingValues) { isDarkTheme ->
@@ -74,6 +74,7 @@ fun NavHost(navController: NavHostController, paddingValues: PaddingValues, onTh
                 }
             }
         }
+
         composable(
             route = BottomNavItem.GameInfo.getScreenRouteNameWithArgsGeneric(BottomNavItem.GameInfo.argName),
             arguments = listOf(navArgument(BottomNavItem.GameInfo.argName) { type = NavType.StringType })
@@ -81,6 +82,7 @@ fun NavHost(navController: NavHostController, paddingValues: PaddingValues, onTh
             val viewModel = hiltViewModel<GameInfoViewModel>()
             GameInfoScreen(it.arguments?.getString(BottomNavItem.GameInfo.argName), viewModel)
         }
+
         composable(BottomNavItem.Favorites.screenRoute) {
             val parentEntry = remember(it) {
                 navController.getBackStackEntry(BottomNavItem.Favorites.screenRoute)
@@ -92,6 +94,7 @@ fun NavHost(navController: NavHostController, paddingValues: PaddingValues, onTh
                 }
             }
         }
+
         composable(BottomNavItem.Settings.screenRoute) {
             SettingsScreen(onThemeChange)
         }

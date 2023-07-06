@@ -58,27 +58,27 @@ import ru.youeleven.randomdemo.ui.composables.GamesSearchBar
 import ru.youeleven.randomdemo.ui.composables.Rating
 import ru.youeleven.randomdemo.ui.showErrorIfExists
 import ru.youeleven.randomdemo.ui.viewmodels.GamesViewModel
-import ru.youeleven.randomdemo.utils.SortingRequest
+import ru.youeleven.randomdemo.data.models.SortingRequest
 import ru.youeleven.randomdemo.utils.SearchRequest
 
 @Composable
 fun GamesScreen(viewModel: GamesViewModel, onGameInfoClick: (Int) -> Unit) {
 
-    val search: SearchRequest? by viewModel.searchText.collectAsStateWithLifecycle()
+    val searchRequest: SearchRequest? by viewModel.searchText.collectAsStateWithLifecycle()
     val gamesFlow: Flow<PagingData<Game>>? by viewModel.games.collectAsStateWithLifecycle()
     val games = gamesFlow?.collectAsLazyPagingItems()
-    val editingFilter by viewModel.sortInEdit.collectAsStateWithLifecycle()
-    var showBottomSheet by remember { mutableStateOf(false) }
+    val sortInEdit by viewModel.sortInEdit.collectAsStateWithLifecycle()
     val errorEvent by viewModel.errorText.collectAsStateWithLifecycle()
     showErrorIfExists(errorEvent, LocalContext.current)
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     if (games == null || games.itemCount == 0) {
-        Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = stringResource(id = R.string.no_games_found),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxSize().wrapContentHeight()
-            )
+        Column(
+            modifier = Modifier.fillMaxHeight(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally)
+        {
+            GamesNotFound()
         }
     } else {
         Column {
@@ -90,7 +90,7 @@ fun GamesScreen(viewModel: GamesViewModel, onGameInfoClick: (Int) -> Unit) {
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 GamesSearchBar(
-                    search = search?.search,
+                    search = searchRequest?.search,
                     onQueryChange = {
                         viewModel.onSearchEdit(it)
                     },
@@ -99,15 +99,8 @@ fun GamesScreen(viewModel: GamesViewModel, onGameInfoClick: (Int) -> Unit) {
                     },
                     modifier = Modifier.width(LocalConfiguration.current.screenWidthDp.dp - 64.dp)
                 )
-                Icon(
-                    painterResource(id = R.drawable.ic_filter),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .clickable {
-                            showBottomSheet = true
-                        }
-                )
+
+                SortIcon { showBottomSheet = true }
             }
 
             GamesLazyColumn(games, onGameInfoClick)
@@ -117,11 +110,11 @@ fun GamesScreen(viewModel: GamesViewModel, onGameInfoClick: (Int) -> Unit) {
                     onDismiss = {
                         showBottomSheet = false
                     },
-                    selectedFilter = editingFilter,
-                    onSelectFilterClick = {
+                    selectedSort = sortInEdit,
+                    onSelectSortClick = {
                         viewModel.onSortEdit(it)
                     },
-                    onFilterClick = {
+                    onSortClick = {
                         viewModel.onSortSubmit()
                     }
                 )
@@ -130,13 +123,37 @@ fun GamesScreen(viewModel: GamesViewModel, onGameInfoClick: (Int) -> Unit) {
     }
 }
 
+@Composable
+fun GamesNotFound() {
+    Text(
+        text = stringResource(id = R.string.no_games_found),
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .fillMaxSize()
+            .wrapContentHeight()
+    )
+}
+
+@Composable
+fun SortIcon(onClick: () -> Unit) {
+    Icon(
+        painterResource(id = R.drawable.ic_filter),
+        contentDescription = null,
+        modifier = Modifier
+            .clip(CircleShape)
+            .clickable {
+                onClick.invoke()
+            }
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GamesModalBottomSheet(
     onDismiss: () -> Unit,
-    selectedFilter: SortingRequest,
-    onSelectFilterClick: (SortingRequest) -> Unit,
-    onFilterClick: () -> Unit
+    selectedSort: SortingRequest,
+    onSelectSortClick: (SortingRequest) -> Unit,
+    onSortClick: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
@@ -147,31 +164,35 @@ fun GamesModalBottomSheet(
         },
         sheetState = sheetState
     ) {
-        Text(text = "Filter", fontSize = 18.sp, modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 12.dp))
+        Text(
+            text = stringResource(id = R.string.games_bottom_sheet_title),
+            fontSize = 18.sp,
+            modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 12.dp)
+        )
 
         SortOption(
-            text = "By default",
+            text = stringResource(id = R.string.games_bottom_sheet_option_default),
             sortingRequest = SortingRequest.BY_DEFAULT,
-            onSelectFilterClick = {onSelectFilterClick.invoke(SortingRequest.BY_DEFAULT)},
-            selectedFilter = selectedFilter
+            onSelectFilterClick = {onSelectSortClick.invoke(SortingRequest.BY_DEFAULT)},
+            selectedFilter = selectedSort
         )
         SortOption(
-            text = "By rating",
+            text = stringResource(id = R.string.games_bottom_sheet_option_rating),
             sortingRequest = SortingRequest.BY_RATING,
-            onSelectFilterClick = {onSelectFilterClick.invoke(SortingRequest.BY_RATING)},
-            selectedFilter = selectedFilter
+            onSelectFilterClick = {onSelectSortClick.invoke(SortingRequest.BY_RATING)},
+            selectedFilter = selectedSort
         )
         SortOption(
-            text = "By Metacritic",
+            text = stringResource(id = R.string.games_bottom_sheet_option_metacritic),
             sortingRequest = SortingRequest.BY_METACRITIC,
-            onSelectFilterClick = {onSelectFilterClick.invoke(SortingRequest.BY_METACRITIC)},
-            selectedFilter = selectedFilter
+            onSelectFilterClick = {onSelectSortClick.invoke(SortingRequest.BY_METACRITIC)},
+            selectedFilter = selectedSort
         )
         SortOption(
-            text = "By release date",
+            text = stringResource(id = R.string.games_bottom_sheet_option_release_date),
             sortingRequest = SortingRequest.BY_RELEASE_DATE,
-            onSelectFilterClick = {onSelectFilterClick.invoke(SortingRequest.BY_RELEASE_DATE)},
-            selectedFilter = selectedFilter
+            onSelectFilterClick = {onSelectSortClick.invoke(SortingRequest.BY_RELEASE_DATE)},
+            selectedFilter = selectedSort
         )
 
         Button(modifier = Modifier
@@ -179,12 +200,12 @@ fun GamesModalBottomSheet(
             .fillMaxWidth(), onClick = {
             scope.launch { sheetState.hide() }.invokeOnCompletion {
                 if (!sheetState.isVisible) {
-                    onFilterClick.invoke()
+                    onSortClick.invoke()
                     onDismiss.invoke()
                 }
             }
         }) {
-            Text("Sort")
+            Text(stringResource(id = R.string.games_bottom_sheet_sort_button))
         }
     }
 }
@@ -256,7 +277,5 @@ fun GamesLazyColumn(games: LazyPagingItems<Game>?, onGameInfoClick: (Int) -> Uni
                 }
             }
         }
-
-        //TODO: Loading indicator
     }
 }

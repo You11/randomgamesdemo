@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.update
 import ru.youeleven.randomdemo.data.models.Game
 import ru.youeleven.randomdemo.data.repository.Repository
 import ru.youeleven.randomdemo.utils.Event
-import ru.youeleven.randomdemo.utils.SortingRequest
+import ru.youeleven.randomdemo.data.models.SortingRequest
 import ru.youeleven.randomdemo.utils.SearchRequest
 import javax.inject.Inject
 

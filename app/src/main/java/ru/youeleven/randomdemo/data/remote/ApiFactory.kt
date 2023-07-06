@@ -7,6 +7,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import ru.youeleven.randomdemo.utils.Consts
 import java.util.concurrent.TimeUnit
 
 
@@ -32,7 +33,7 @@ object ApiFactory {
                 val request = chain.request()
 
                 val url = request.url.newBuilder()
-                    .addQueryParameter("key", "1aa659e6599b44fbb71580b26bf7fa88")
+                    .addQueryParameter("key", Consts.API_KEY)
                     .build()
 
                 val requestBuilder = request.newBuilder().url(url)

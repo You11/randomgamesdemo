@@ -16,4 +16,11 @@
 
     <string name="default_error">Ошибка</string>
     <string name="no_games_found">Игр не найдено</string>
+
+    <string name="games_bottom_sheet_title">Сортировка</string>
+    <string name="games_bottom_sheet_option_default">По умолчанию</string>
+    <string name="games_bottom_sheet_option_rating">Рейтинг</string>
+    <string name="games_bottom_sheet_option_metacritic">Metacritic</string>
+    <string name="games_bottom_sheet_option_release_date">Дата выхода</string>
+    <string name="games_bottom_sheet_sort_button">Сортировать</string>
 </resources>

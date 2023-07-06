@@ -1,4 +1,4 @@
-package ru.youeleven.randomdemo.utils
+package ru.youeleven.randomdemo.data.models
 
 enum class SortingRequest(val request: String) {
     BY_DEFAULT("null"),

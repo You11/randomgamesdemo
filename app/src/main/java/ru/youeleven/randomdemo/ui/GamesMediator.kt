@@ -1,15 +1,10 @@
 package ru.youeleven.randomdemo.ui
 
-import android.content.Context
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
 import retrofit2.HttpException
 import ru.youeleven.randomdemo.App
 import ru.youeleven.randomdemo.data.local.AppDatabase
@@ -56,7 +51,7 @@ class GamesMediator(val repository: Repository): RemoteMediator<Int, GameLocalWi
                         db.dao().deleteAllGames()
                     }
                     val prevKey = if (page == initialPage) null else page - 1
-                    val nextKey = getNextKey(page, response.data.count)
+                    val nextKey = getNextPage(page, response.data.count)
                     val keys = response.data.games.map { GameRemoteKeysLocal(gameId = it.id, prevKey = prevKey, nextKey = nextKey) }
                     db.dao().insertGamesRemoteKeys(keys)
                     db.dao().insertGames(response.data.games.map { it.asGameLocal() })
@@ -79,7 +74,7 @@ class GamesMediator(val repository: Repository): RemoteMediator<Int, GameLocalWi
         }
     }
 
-    private fun getNextKey(currentPage: Int, count: Int): Int? {
+    private fun getNextPage(currentPage: Int, count: Int): Int? {
         val lastPage = getLastPageNumber(count)
         return if (currentPage < lastPage) currentPage + 1 else null
     }
