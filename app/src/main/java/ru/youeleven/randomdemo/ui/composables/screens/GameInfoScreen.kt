@@ -73,9 +73,10 @@ fun GameInfoScreen(id: String?, viewModel: GameInfoViewModel) {
 fun GameLayout(game: Game?, onAddClick: () -> Unit, onRemoveClick: () -> Unit) {
     if (game == null) return
     var showPager by rememberSaveable { mutableStateOf<Int?>(null) }
+    val scrollState = rememberScrollState()
     Column(modifier = Modifier
         .fillMaxWidth()
-        .verticalScroll(enabled = true, state = ScrollState(0))) {
+        .verticalScroll(enabled = true, state = scrollState)) {
 
         AsyncImage(
             model = game.backgroundImage,
@@ -150,6 +151,7 @@ fun ScreenshotsRow(screenshots: List<String>, onImageClick: (Int) -> Unit) {
             AsyncImage(
                 model = url,
                 contentDescription = null,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .width(320.dp)
                     .clickable { onImageClick.invoke(index) }
