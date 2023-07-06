@@ -5,10 +5,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
@@ -36,7 +39,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -67,50 +72,60 @@ fun GamesScreen(viewModel: GamesViewModel, onGameInfoClick: (Int) -> Unit) {
     val errorEvent by viewModel.errorText.collectAsStateWithLifecycle()
     showErrorIfExists(errorEvent, LocalContext.current)
 
-    Column {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .padding(horizontal = 8.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            GamesSearchBar(
-                search = search?.search,
-                onQueryChange = {
-                    viewModel.onSearchEdit(it)
-                },
-                onSearch = {
-                    viewModel.onSearchSubmit(it)
-                },
-                modifier = Modifier.width(LocalConfiguration.current.screenWidthDp.dp - 64.dp)
-            )
-            Icon(
-                painterResource(id = R.drawable.ic_filter),
-                contentDescription = null,
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .clickable {
-                        showBottomSheet = true
-                    }
+    if (games == null || games.itemCount == 0) {
+        Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = stringResource(id = R.string.no_games_found),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxSize().wrapContentHeight()
             )
         }
+    } else {
+        Column {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                GamesSearchBar(
+                    search = search?.search,
+                    onQueryChange = {
+                        viewModel.onSearchEdit(it)
+                    },
+                    onSearch = {
+                        viewModel.onSearchSubmit(it)
+                    },
+                    modifier = Modifier.width(LocalConfiguration.current.screenWidthDp.dp - 64.dp)
+                )
+                Icon(
+                    painterResource(id = R.drawable.ic_filter),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .clickable {
+                            showBottomSheet = true
+                        }
+                )
+            }
 
-        GamesLazyColumn(games, onGameInfoClick)
+            GamesLazyColumn(games, onGameInfoClick)
 
-        if (showBottomSheet) {
-            GamesModalBottomSheet(
-                onDismiss = {
-                    showBottomSheet = false
-                },
-                selectedFilter = editingFilter,
-                onSelectFilterClick = {
-                    viewModel.onSortEdit(it)
-                },
-                onFilterClick = {
-                    viewModel.onSortSubmit()
-                }
-            )
+            if (showBottomSheet) {
+                GamesModalBottomSheet(
+                    onDismiss = {
+                        showBottomSheet = false
+                    },
+                    selectedFilter = editingFilter,
+                    onSelectFilterClick = {
+                        viewModel.onSortEdit(it)
+                    },
+                    onFilterClick = {
+                        viewModel.onSortSubmit()
+                    }
+                )
+            }
         }
     }
 }
@@ -159,7 +174,9 @@ fun GamesModalBottomSheet(
             selectedFilter = selectedFilter
         )
 
-        Button(modifier = Modifier.padding(vertical = 12.dp, horizontal = 8.dp).fillMaxWidth(), onClick = {
+        Button(modifier = Modifier
+            .padding(vertical = 12.dp, horizontal = 8.dp)
+            .fillMaxWidth(), onClick = {
             scope.launch { sheetState.hide() }.invokeOnCompletion {
                 if (!sheetState.isVisible) {
                     onFilterClick.invoke()

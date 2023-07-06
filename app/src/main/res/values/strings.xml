@@ -15,4 +15,5 @@
     <string name="game_info_screen_name">Игра</string>
 
     <string name="default_error">Ошибка</string>
+    <string name="no_games_found">Игр не найдено</string>
 </resources>

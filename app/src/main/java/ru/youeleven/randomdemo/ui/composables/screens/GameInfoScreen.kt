@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
@@ -27,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -70,7 +72,7 @@ fun GameInfoScreen(id: String?, viewModel: GameInfoViewModel) {
 @Composable
 fun GameLayout(game: Game?, onAddClick: () -> Unit, onRemoveClick: () -> Unit) {
     if (game == null) return
-    var showPager by remember { mutableStateOf<Int?>(null) }
+    var showPager by rememberSaveable { mutableStateOf<Int?>(null) }
     Column(modifier = Modifier
         .fillMaxWidth()
         .verticalScroll(enabled = true, state = ScrollState(0))) {
@@ -136,11 +138,13 @@ fun GameLayout(game: Game?, onAddClick: () -> Unit, onRemoveClick: () -> Unit) {
 
 @Composable
 fun ScreenshotsRow(screenshots: List<String>, onImageClick: (Int) -> Unit) {
+    val scrollState = rememberScrollState()
+
     Row(modifier = Modifier
         .fillMaxWidth()
         .height(180.dp)
         .padding(horizontal = 8.dp)
-        .horizontalScroll(ScrollState(initial = 0))) {
+        .horizontalScroll(state = scrollState)) {
 
         screenshots.forEachIndexed { index, url ->
             AsyncImage(
