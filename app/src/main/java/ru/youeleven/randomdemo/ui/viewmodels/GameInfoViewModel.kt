@@ -21,6 +21,9 @@ class GameInfoViewModel @Inject constructor(private val repository: Repository):
     private val _game = MutableStateFlow<Game?>(null)
     val game: StateFlow<Game?> = _game.asStateFlow()
 
+    private val _isFavorite = MutableStateFlow(false)
+    val isFavorite: StateFlow<Boolean> = _isFavorite.asStateFlow()
+
     private val _errorText = MutableStateFlow<Event<String?>>(Event(null))
     val errorText: StateFlow<Event<String?>> = _errorText
 
@@ -40,6 +43,7 @@ class GameInfoViewModel @Inject constructor(private val repository: Repository):
                     _errorText.update { Event(result.error?.localizedMessage) }
                 }
             }
+            _isFavorite.value = isFavorite
         }
     }
 
@@ -49,7 +53,8 @@ class GameInfoViewModel @Inject constructor(private val repository: Repository):
 
     fun changeFavoriteGameStatus(isFavorite: Boolean) {
         val game = game.value ?: return
-        _game.update { game.copy().also { it.isFavoriteGame = isFavorite } }
+        game.isFavoriteGame = isFavorite
+        _isFavorite.value = isFavorite
         viewModelScope.launch(Dispatchers.IO) {
             if (isFavorite) {
                 repository.insertFavoriteGame(game)

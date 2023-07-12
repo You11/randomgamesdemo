@@ -68,14 +68,15 @@ fun FavoriteGamesScreen(viewModel: FavoriteGamesViewModel, onGameInfoClick: (Int
 @Composable
 fun GameLayout(games: List<Game>, onGameInfoClick: (Int) -> Unit) {
     LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier.padding(top = 8.dp, start = 12.dp, end = 12.dp)
     ) {
         items(games) {
             Card(
                 shape = RoundedCornerShape(8.dp),
                 elevation = CardDefaults.cardElevation(),
-                onClick = { onGameInfoClick.invoke(it.id) }
+                onClick = { onGameInfoClick.invoke(it.id) },
+                modifier = Modifier.padding(bottom = 8.dp)
             ) {
                 Column {
                     AsyncImage(

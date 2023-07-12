@@ -58,19 +58,21 @@ fun GameInfoScreen(id: String?, viewModel: GameInfoViewModel) {
 
     viewModel.getGame(id)
     val game: Game? by viewModel.game.collectAsStateWithLifecycle()
+    val isFavorite: Boolean by viewModel.isFavorite.collectAsStateWithLifecycle()
     val errorEvent by viewModel.errorText.collectAsStateWithLifecycle()
     showErrorIfExists(errorEvent, LocalContext.current)
 
 
     GameLayout(
         game,
+        isFavorite,
         { viewModel.changeFavoriteGameStatus(true) },
         { viewModel.changeFavoriteGameStatus(false) }
     )
 }
 
 @Composable
-fun GameLayout(game: Game?, onAddClick: () -> Unit, onRemoveClick: () -> Unit) {
+fun GameLayout(game: Game?, isFavorite: Boolean, onAddClick: () -> Unit, onRemoveClick: () -> Unit) {
     if (game == null) return
     var showPager by rememberSaveable { mutableStateOf<Int?>(null) }
     val scrollState = rememberScrollState()
@@ -123,7 +125,7 @@ fun GameLayout(game: Game?, onAddClick: () -> Unit, onRemoveClick: () -> Unit) {
                 .padding(8.dp))
         }
 
-        if (!game.isFavoriteGame) {
+        if (!isFavorite) {
             GameInfoGameStatusButton(onClick = { onAddClick.invoke() }, text = stringResource(id = R.string.game_info_add_game))
         } else {
             GameInfoGameStatusButton(onClick = { onRemoveClick.invoke() }, text = stringResource(id = R.string.game_info_remove_game))
@@ -191,7 +193,7 @@ fun GameInfoGameStatusButton(onClick: () -> Unit, text: String) {
         modifier = Modifier
             .fillMaxWidth()
             .height(64.dp)
-            .padding(8.dp)) {
+            .padding(top = 8.dp, bottom = 16.dp, start = 8.dp, end = 8.dp)) {
         Text(text = text, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
     }
 }
